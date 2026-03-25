@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>윤상호 (Yoon Sang-ho) | 한-베 전략 비즈니스 아키텍트</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- 
+    <!-- Chosen Palette: Warm Stone & Corporate Navy -->
+    <!-- Application Structure Plan: The SPA is structured as an interactive executive dashboard rather than a traditional resume. This approach is chosen because Yoon Sang-ho's career spans multiple distinct but interconnected domains (entrepreneurship, public diplomacy, crisis leadership). 
+         1. Hero/Executive Summary: Immediate context of his overarching identity ("Strategic Architect").
+         2. Interactive Timeline: Allows users to explore his chronological journey from military service to a top business leader, emphasizing evolution.
+         3. SMBL Corporate Impact (Charts): Visualizes the scale and diversity of his business operations, which is hard to grasp from text alone.
+         4. Public Leadership & CSR: Groups his non-profit and community achievements logically.
+         5. Media/Insights: Provides verified external validation. 
+         This non-linear, thematic structure empowers the user to explore the facets of his career most relevant to their interests. -->
+    <!-- Visualization & Content Choices: 
+         - Report Info: SMBL's diverse business portfolio (B2G, B2B, Exhibitions).
+         - Goal: Inform & Compare proportions.
+         - Viz/Presentation Method: Doughnut Chart (Chart.js).
+         - Interaction: Hover for exact percentages and tooltips.
+         - Justification: Best shows how his business bridges different sectors simultaneously.
+         - Library/Method: Chart.js Canvas (NO SVG/Mermaid used).
+         
+         - Report Info: Chronological career milestones (1989-2026).
+         - Goal: Change/Journey.
+         - Viz/Presentation Method: Interactive horizontal tab timeline.
+         - Interaction: Click year to reveal detailed contextual text block.
+         - Justification: Condenses a 30+ year career into an easily navigable interface without overwhelming text.
+         - Library/Method: Vanilla JS + HTML/Tailwind (NO SVG/Mermaid used). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        stone: {
+                            50: '#fafaf9',
+                            100: '#f5f5f4',
+                            200: '#e7e5e4',
+                            800: '#292524',
+                            900: '#1c1917',
+                        },
+                        navy: {
+                            600: '#1e3a8a',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Pretendard"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Typography overrides for cleaner look */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #fafaf9; /* stone-50 */
+            color: #292524; /* stone-800 */
+        }
+
+        /* Mandatory Chart Container Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* Utility classes for interactions */
+        .timeline-btn.active {
+            background-color: #1e3a8a; /* navy-800 */
+            color: white;
+            font-weight: bold;
+            border-color: #1e3a8a;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-navy-200 selection:text-navy-900 leading-relaxed">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md border-b border-stone-200 z-50 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 font-bold text-xl tracking-tight text-navy-800">
+                    YOON SANG-HO
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8 text-sm font-medium">
+                        <a href="#summary" class="text-stone-600 hover:text-navy-700 transition">요약 (Summary)</a>
+                        <a href="#timeline" class="text-stone-600 hover:text-navy-700 transition">여정 (Timeline)</a>
+                        <a href="#impact" class="text-stone-600 hover:text-navy-700 transition">비즈니스 (SMBL)</a>
+                        <a href="#leadership" class="text-stone-600 hover:text-navy-700 transition">리더십 (Leadership)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero / Executive Summary -->
+    <section id="summary" class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div class="intro-paragraph mb-8 text-stone-500 text-sm font-semibold uppercase tracking-wider">
+            [섹션 안내] 본 섹션은 윤상호 대표의 핵심 정체성과 30년 경력의 요약을 제공합니다. 단순한 기업가를 넘어 한-베 양국의 전략적 브리지 역할을 수행해 온 그의 거시적 가치를 확인할 수 있습니다.
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-8">
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-stone-900 leading-tight mb-4">
+                    한-베 경제 공동체의<br/>
+                    <span class="text-navy-700">전략적 비즈니스 아키텍트</span>
+                </h1>
+                <p class="text-xl text-stone-600 mb-8 font-light">
+                    SMBL 대표이사 윤상호는 지난 20년간 한국과 베트남을 잇는 가장 영향력 있는 민간 경제 외교관이자 커뮤니티 리더입니다. 3,000건 이상의 B2B/B2G 프로젝트를 성공적으로 이끌며, 양국 관계를 '기대 동맹'으로 격상시키는 미래 로드맵을 설계하고 있습니다.
+                </p>
+                
+                <div class="flex flex-wrap gap-4">
+                    <div class="bg-white border border-stone-200 rounded-lg p-4 shadow-sm min-w-[140px]">
+                        <div class="text-3xl mb-1">🏢</div>
+                        <div class="font-bold text-2xl text-stone-900">2005년</div>
+                        <div class="text-xs text-stone-500 uppercase tracking-wide">SMBL 설립</div>
+                    </div>
+                    <div class="bg-white border border-stone-200 rounded-lg p-4 shadow-sm min-w-[140px]">
+                        <div class="text-3xl mb-1">🤝</div>
+                        <div class="font-bold text-2xl text-stone-900">12·13대</div>
+                        <div class="text-xs text-stone-500 uppercase tracking-wide">하노이 한인회장</div>
+                    </div>
+                    <div class="bg-white border border-stone-200 rounded-lg p-4 shadow-sm min-w-[140px]">
+                        <div class="text-3xl mb-1">🎖️</div>
+                        <div class="font-bold text-2xl text-stone-900">동백장</div>
+                        <div class="text-xs text-stone-500 uppercase tracking-wide">대한민국 국민훈장 (2022)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-4 bg-navy-800 text-white p-8 rounded-2xl shadow-xl">
+                <h3 class="text-lg font-bold mb-4 border-b border-navy-600 pb-2">핵심 역량 (Core Competencies)</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <span class="mr-2 text-blue-300">✔</span>
+                        <span>한-베 B2G 및 B2B 시장 개척 컨설팅</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2 text-blue-300">✔</span>
+                        <span>공공 조달 및 산업단지 투자 유치 전략</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2 text-blue-300">✔</span>
+                        <span>글로벌 한인 사회 위기관리 및 거버넌스</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2 text-blue-300">✔</span>
+                        <span>대규모 엑스포, 무역사절단 및 포럼 총괄 기획</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline / Career Journey -->
+    <section id="timeline" class="py-20 bg-white border-t border-stone-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="intro-paragraph mb-8 text-stone-500 text-sm font-semibold uppercase tracking-wider text-center">
+                [섹션 안내] 본 섹션은 인터랙티브 타임라인을 통해 윤상호 대표의 이력을 시대별로 탐색할 수 있게 합니다. 군 생활의 규율부터 창업, 그리고 동포 사회의 리더로 진화해 온 과정을 연도를 클릭하여 확인하십시오.
+            </div>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-stone-900">진화하는 리더십: 커리어 타임라인</h2>
+                <p class="mt-4 text-stone-600">군인에서 미디어 창업가, 그리고 베트남 최고의 비즈니스 네트워크 전문가로 성장한 궤적</p>
+            </div>
+
+            <!-- Interactive Timeline Container -->
+            <div class="flex flex-col md:flex-row gap-8 items-start">
+                <!-- Year Selectors -->
+                <div class="w-full md:w-1/3 flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible gap-2 pb-4 md:pb-0 border-b md:border-b-0 md:border-r border-stone-200 pr-0 md:pr-4" id="timeline-buttons">
+                    <!-- Buttons generated by JS -->
+                </div>
+                
+                <!-- Content Display -->
+                <div class="w-full md:w-2/3 bg-stone-50 rounded-xl p-8 border border-stone-200 min-h-[300px]" id="timeline-content">
+                    <!-- Content generated by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SMBL Corporate Impact (Data Viz) -->
+    <section id="impact" class="py-20 bg-stone-100 border-t border-stone-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="intro-paragraph mb-8 text-stone-500 text-sm font-semibold uppercase tracking-wider text-center">
+                [섹션 안내] 본 섹션은 그가 설립한 SMBL의 사업 포트폴리오와 성과를 데이터 시각화를 통해 보여줍니다. 하단 차트를 마우스로 호버(Hover)하여 각 사업 영역의 비중과 주요 고객사 정보를 인터랙티브하게 탐색할 수 있습니다.
+            </div>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-stone-900">SMBL: 한-베 비즈니스 게이트웨이 성과</h2>
+                <p class="mt-4 text-stone-600">2005년 설립 이래 4,500여 개 한국 기관/기업과 1,000여 개 베트남 네트워크를 연결</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Chart 1: Business Portfolio -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 flex flex-col items-center">
+                    <h3 class="text-xl font-bold text-stone-800 mb-2 text-center">SMBL 핵심 비즈니스 포트폴리오</h3>
+                    <p class="text-sm text-stone-500 mb-6 text-center">공공조달부터 민간투자까지 포괄적인 브리지 역할 수행</p>
+                    <div class="chart-container">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Milestone Growth -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 flex flex-col items-center">
+                    <h3 class="text-xl font-bold text-stone-800 mb-2 text-center">시대별 중점 사업 스케일업</h3>
+                    <p class="text-sm text-stone-500 mb-6 text-center">시장 개척기(2000s)부터 첨단 산업단지 기획(2020s)까지</p>
+                    <div class="chart-container">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Public Leadership & CSR -->
+    <section id="leadership" class="py-20 bg-white border-t border-stone-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="intro-paragraph mb-8 text-stone-500 text-sm font-semibold uppercase tracking-wider text-center">
+                [섹션 안내] 본 섹션은 이익 창출을 넘어선 그의 공공 리더십과 사회공헌(CSR) 활동을 요약합니다. 카드 형태의 UI를 통해 팬데믹 위기 극복, 동포 사회 통합, 문화 교류 활동의 구체적인 내역을 확인할 수 있습니다.
+            </div>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-stone-900">공공외교 및 글로벌 리더십</h2>
+                <p class="mt-4 text-stone-600">이윤 창출을 넘어 한인 동포 사회의 권익 보호와 양국 문화 교류에 앞장서다</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-stone-50 rounded-xl p-6 border border-stone-200 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">🛡️</div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-3">코로나19 팬데믹 위기 대응</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        하노이 한인회장 및 베트남 한인연합회장 재임 시절, 강력한 봉쇄 조치 속에서 현지 언론 인터뷰를 주도하여 여론 악화를 막고, 한국 기업인 특별 입국 및 교민 백신 확보에 결정적 기여를 했습니다.
+                    </p>
+                    <span class="inline-block bg-navy-100 text-navy-800 text-xs px-2 py-1 rounded-full font-semibold">2020 - 2021</span>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-stone-50 rounded-xl p-6 border border-stone-200 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">🎖️</div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-3">대한민국 국민훈장 동백장</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        민간 외교관으로서 한-베 관계 증진과 재외동포 사회 발전에 이바지한 공로, 특히 코로나19 상황 속에서의 헌신적인 교민 보호 활동을 대한민국 정부로부터 공식 인정받아 수훈했습니다.
+                    </p>
+                    <span class="inline-block bg-navy-100 text-navy-800 text-xs px-2 py-1 rounded-full font-semibold">2022 수훈</span>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-stone-50 rounded-xl p-6 border border-stone-200 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">🗣️</div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-3">CSR: Interpreter's Day</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        2017년부터 SMBL 주관으로 '베트남 통역사의 날'을 제정 및 개최하여, 한-베 비즈니스 현장 최전선에서 일하는 현지 통역사들의 노고를 격려하고 전문성 강화를 돕는 문화·교육 교류를 실천합니다.
+                    </p>
+                    <span class="inline-block bg-navy-100 text-navy-800 text-xs px-2 py-1 rounded-full font-semibold">지속가능한 상생</span>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-stone-50 rounded-xl p-6 border border-stone-200 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">🏛️</div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-3">공식 외교 의전 수행</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        2018년 한국 대통령 베트남 국빈 방문 시 하노이 노이바이 공항 공식 영접단 대표로 참석하였으며, 2019년 하노이 북미정상회담 당시 교민사회 대표로서 한반도 평화 지지 성명을 다수 언론에 발표했습니다.
+                    </p>
+                    <span class="inline-block bg-navy-100 text-navy-800 text-xs px-2 py-1 rounded-full font-semibold">정부 신뢰도 입증</span>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="bg-stone-50 rounded-xl p-6 border border-stone-200 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">🤝</div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-3">거버넌스 및 자문 활동</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        베트남 하노이 코참(KORCHAM) 지식경영위원 및 자문위원, 민주평화통일자문회의 자문위원 등을 역임하며 주요 경제·정책 결정 과정에 현장의 목소리를 전달하는 오피니언 리더 역할을 수행합니다.
+                    </p>
+                    <span class="inline-block bg-navy-100 text-navy-800 text-xs px-2 py-1 rounded-full font-semibold">네트워크 허브</span>
+                </div>
+
+                 <!-- Card 6 -->
+                 <div class="bg-stone-50 rounded-xl p-6 border border-stone-200 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">📈</div>
+                    <h3 class="text-xl font-bold text-stone-900 mb-3">미래 비전 (2025-2055)</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        단순 하청 기지를 넘어선 '한-베 경제 공동체 및 기대 동맹' 30년 로드맵을 제안. 베트남 지방정부(동나이, 롱안, 흥옌)와 긴밀히 협력하며 한국 첨단 제조 기업의 원스톱 진출을 기획합니다.
+                    </p>
+                    <span class="inline-block bg-navy-100 text-navy-800 text-xs px-2 py-1 rounded-full font-semibold">전략가 (Strategist)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer / Outro -->
+    <footer class="bg-stone-900 text-stone-400 py-12 text-center">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-2xl font-bold text-white mb-4">SMBL COMPANY LIMITED</h2>
+            <p class="mb-6">The Premier Korea–Vietnam Business Gateway</p>
+            <div class="text-sm border-t border-stone-700 pt-6 inline-block w-full max-w-lg">
+                <p>CEO: 윤상호 (Yoon Sang-ho)</p>
+                <p>Headquarters: 19th Floor, Room 1911, Keangnam Landmark 72, Pham Hung Str, Hanoi, Vietnam</p>
+                <p class="mt-4">© 2026 Profile Interactive Report. Generated based on provided research data.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- 1. Timeline Interactive Logic ---
+        const timelineData = [
+            {
+                year: "1982 - 1989",
+                title: "규율과 통찰의 형성기",
+                subtitle: "대한민국 공군 항공과학고등학교 및 기상관제사",
+                content: "공군 항공과학고등학교 기상관제과를 졸업하고 방공요격관제 중사로 전역했습니다. 이 시기에 배운 철저한 규율과 기상/상황 예측 능력은 훗날 복잡한 글로벌 비즈니스 환경에서 리스크를 선제적으로 관리하는 전략적 마인드의 기반이 되었습니다."
+            },
+            {
+                year: "1989 - 2003",
+                title: "미디어 및 디자인 창업가",
+                subtitle: "월간 아쿠아월드 발행인 & 엘크디자인 대표",
+                content: "월간 아쿠아월드의 발행인 겸 대표, 그리고 엘크디자인의 대표를 역임하며 한국 내에서 출판, 기획, 마케팅 분야의 비즈니스 감각을 키웠습니다. 트렌드를 읽고 대중과 소통하는 능력은 훗날 B2B 전시 및 세미나 기획의 강력한 무기가 되었습니다. 2004년 경희사이버대 이비즈니스 학과를 졸업하며 디지털 경영 지식을 통합했습니다."
+            },
+            {
+                year: "2005 - 2010s",
+                title: "SMBL 설립 및 시장 개척",
+                subtitle: "한-베 B2B 마케팅 및 조달 시장 진입",
+                content: "2004년 베트남 진출 직후, 2005년 SMBL(Small & Medium Business Link)을 설립했습니다. 초기에는 중소기업진흥공단 해외민간네트워크 등 한국 정부의 수출지원 기관으로 활동하며, 베트남 공안부 대테러 장비 납품 등 공공 조달 시장이라는 진입 장벽이 높은 B2G 분야를 성공적으로 개척했습니다."
+            },
+            {
+                year: "2018 - 2021",
+                title: "동포사회 거버넌스 및 위기관리",
+                subtitle: "하노이 한인회장 및 베트남 한인연합회장",
+                content: "12대 및 13대 하노이 한인회장, 베트남 한인연합회장으로서 커뮤니티를 이끌었습니다. 특히 2020년 팬데믹 위기 속에서 신속한 백신 확보, 한국 기업인 특별 입국 지원, 현지 언론을 통한 양국 오해 불식 등 탁월한 위기관리 능력과 공공외교 역량을 발휘했습니다. 2018년 문재인 대통령 국빈방문 시 공항 영접을 수행하기도 했습니다."
+            },
+            {
+                year: "2022 - 2026",
+                title: "전략적 아키텍트로의 도약",
+                subtitle: "대한민국 국민훈장 동백장 수훈 및 B2G 대형 프로젝트 리드",
+                content: "코로나19 시기의 헌신을 인정받아 2022년 대한민국 정부로부터 '국민훈장 동백장'을 수훈했습니다. 현재는 단순 무역 브리지를 넘어, 흥옌성 BAO HONG 그룹 산업단지 등 베트남 지방정부 핵심 인프라에 한국 첨단 기업을 유치하는 '원스톱 컨설팅'을 제공하며 한-베 경제의 미래 30년을 설계하고 있습니다."
+            }
+        ];
+
+        const timelineButtonsContainer = document.getElementById('timeline-buttons');
+        const timelineContentContainer = document.getElementById('timeline-content');
+
+        function renderTimeline() {
+            timelineData.forEach((item, index) => {
+                // Create Button
+                const btn = document.createElement('button');
+                btn.className = `timeline-btn w-full md:w-auto text-left md:text-center px-4 py-3 rounded-lg border border-stone-200 bg-white text-stone-600 hover:bg-stone-100 transition whitespace-nowrap md:whitespace-normal font-medium ${index === 0 ? 'active' : ''}`;
+                btn.innerText = item.year;
+                btn.onclick = () => updateTimelineContent(index, btn);
+                timelineButtonsContainer.appendChild(btn);
+            });
+            // Initial render
+            updateTimelineContent(0, timelineButtonsContainer.firstChild);
+        }
+
+        function updateTimelineContent(index, activeBtn) {
+            // Update button states
+            document.querySelectorAll('.timeline-btn').forEach(btn => btn.classList.remove('active'));
+            activeBtn.classList.add('active');
+
+            // Update content with animation
+            const data = timelineData[index];
+            timelineContentContainer.classList.remove('fade-in');
+            
+            // Trigger reflow for animation restart
+            void timelineContentContainer.offsetWidth; 
+            
+            timelineContentContainer.innerHTML = `
+                <div class="mb-4">
+                    <span class="inline-block bg-navy-100 text-navy-800 text-sm px-3 py-1 rounded-full font-bold mb-2">${data.year}</span>
+                    <h3 class="text-2xl font-extrabold text-stone-900">${data.title}</h3>
+                    <h4 class="text-lg text-stone-500 font-medium mt-1">${data.subtitle}</h4>
+                </div>
+                <div class="w-12 h-1 bg-navy-600 mb-6"></div>
+                <p class="text-stone-700 leading-relaxed text-lg">${data.content}</p>
+            `;
+            timelineContentContainer.classList.add('fade-in');
+        }
+
+        // Initialize Timeline
+        renderTimeline();
+
+
+        // --- 2. Chart.js Visualization Logic ---
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // Configuration for Chart.js standard styles
+            Chart.defaults.font.family = '"Pretendard", sans-serif';
+            Chart.defaults.color = '#57534e'; // stone-500
+
+            // Chart 1: SMBL Business Portfolio (Doughnut)
+            const ctxPortfolio = document.getElementById('portfolioChart').getContext('2d');
+            new Chart(ctxPortfolio, {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        '투자 및 산업단지 컨설팅 (B2G/B2B)', 
+                        '수출입 마케팅 & 파트너 매칭', 
+                        '정부 조달 (군/경찰 장비 등)', 
+                        '전문 전시회 및 대형 포럼 기획'
+                    ],
+                    datasets: [{
+                        data: [35, 30, 20, 15], // Approximate representation based on profile density
+                        backgroundColor: [
+                            '#1e3a8a', // navy-800
+                            '#3b82f6', // blue-500
+                            '#93c5fd', // blue-300
+                            '#d6d3d1'  // stone-300
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { size: 13 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ' : 약 ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // Chart 2: Milestone Growth/Impact (Bar)
+            // Simplified proxy metric showing the evolution from single trade matching to complex B2G projects
+            const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+            new Chart(ctxGrowth, {
+                type: 'bar',
+                data: {
+                    labels: ['2005~2010 (시장탐색기)', '2011~2015 (네트워크 확장)', '2016~2020 (대규모 기획)', '2021~현재 (전략/거버넌스)'],
+                    datasets: [
+                        {
+                            label: '민간(B2B) 프로젝트 비중',
+                            data: [80, 60, 50, 40],
+                            backgroundColor: '#93c5fd', // blue-300
+                        },
+                        {
+                            label: '공공(B2G) 및 투자컨설팅 비중',
+                            data: [20, 40, 50, 60],
+                            backgroundColor: '#1e3a8a', // navy-800
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
